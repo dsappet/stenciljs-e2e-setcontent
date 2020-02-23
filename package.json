@@ -1,0 +1,29 @@
+{
+  "name": "stenciljs-e2e-setcontent",
+  "version": "1.0.0",
+  "description": "An implementation of setContent to replace stencil's override and implement some missing functionality",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dsappet/stenciljs-e2e-setcontent.git"
+  },
+  "keywords": [
+    "stencil",
+    "stenciljs",
+    "e2e",
+    "testing",
+    "test",
+    "puppeteer",
+    "setcontent",
+    "override"
+  ],
+  "author": "Douglas Sappet",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dsappet/stenciljs-e2e-setcontent/issues"
+  },
+  "homepage": "https://github.com/dsappet/stenciljs-e2e-setcontent#readme"
+}
