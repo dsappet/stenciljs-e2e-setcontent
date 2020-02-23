@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/dsappet/stenciljs-e2e-setcontent/issues"
   },
-  "homepage": "https://github.com/dsappet/stenciljs-e2e-setcontent#readme"
+  "homepage": "https://github.com/dsappet/stenciljs-e2e-setcontent#readme",
+  "devDependencies": {
+    "@types/node": "^13.7.4"
+  }
 }
