@@ -1,26 +1,24 @@
-import { E2EPageInternal } from '@stencil/core/testing/puppeteer/puppeteer-declarations';
-import * as puppeteer from 'puppeteer';
+import { E2EPageInternal } from "@stencil/core/testing/puppeteer/puppeteer-declarations";
+import * as puppeteer from "puppeteer";
 
-// Stupid StencilJS decided to mock setContent to be their own dumb thing so that addScript and similar calls don't work
-// This is our own override of their override. This allows us to add the mock manifest client.
-// The code in master on their repo has some differences in the scripts it includes from env vars than what is currently available
-// so I added some condition garbage that should gracefully handle it so that it doesn't blow up when we update stencil/core
-// don't use the html constructor property for newE2EPage() because that will break this and you will have a bad time.
-//https://github.com/ionic-team/stencil/blob/master/src/testing/puppeteer/puppeteer-page.ts
+import { AddTagOptions } from './interfaces/add-tag-options';
+
 export async function e2eSetContent(
   page: E2EPageInternal,
   html: string,
-  options: puppeteer.NavigationOptions = {}
-) {
-  const mockManifestClientUrl =
-    'https://mi-mock-clients.s3-eu-west-1.amazonaws.com/miManifestClientV1.js';
+  navigationOptions?: puppeteer.NavigationOptions,
+  moreOptions?: AddTagOptions
+): Promise<puppeteer.Response> {
   const STENCIL_TIMEOUT = 4500;
 
+  navigationOptions = navigationOptions ? navigationOptions : {};
+  moreOptions = moreOptions ? moreOptions : {};
+
   if (page.isClosed()) {
-    throw new Error('e2eSetContent unavailable: page already closed');
+    throw new Error("e2eSetContent unavailable: page already closed");
   }
-  if (typeof html !== 'string') {
-    throw new Error('invalid e2eSetContent() html');
+  if (typeof html !== "string") {
+    throw new Error("invalid e2eSetContent() html");
   }
 
   const output: string[] = [];
@@ -32,15 +30,22 @@ export async function e2eSetContent(
   output.push(`<!doctype html>`);
   output.push(`<html>`);
   output.push(`<head>`);
-  output.push(`<script src="${mockManifestClientUrl}"></script>`);
 
-  if (typeof appUrl === 'string') {
+  moreOptions?.script?.forEach(scriptSrc => {
+    output.push(`<script src="${scriptSrc}"></script>`);
+  });
+
+  if (typeof appUrl === "string") {
     output.push(`<script type="module" src="${appUrl}"></script>`);
-  } else if (typeof appScriptUrl === 'string') {
+  } else if (typeof appScriptUrl === "string") {
     output.push(`<script type="module" src="${appScriptUrl}"></script>`);
   }
 
-  if (typeof appStyleUrl === 'string') {
+  moreOptions?.style?.forEach(styleTag => {
+    output.push(`<link rel="stylesheet" href="${styleTag}">`);
+  });
+
+  if (typeof appStyleUrl === "string") {
     output.push(`<link rel="stylesheet" href="${appStyleUrl}">`);
   }
 
@@ -50,25 +55,25 @@ export async function e2eSetContent(
   output.push(`</body>`);
   output.push(`</html>`);
 
-  const pageUrl = process.env.__STENCIL_BROWSER_URL__; // this should always be here
+  const pageUrl: string = process.env.__STENCIL_BROWSER_URL__; // this should always be here
 
   await page.setRequestInterception(true);
-  page.on('request', interceptedRequest => {
+  page.on("request", interceptedRequest => {
     if (pageUrl === interceptedRequest.url()) {
       interceptedRequest.respond({
         status: 200,
-        contentType: 'text/html',
-        body: output.join('\n')
+        contentType: "text/html",
+        body: output.join("\n"),
       });
     } else {
       interceptedRequest.continue();
     }
   });
 
-  if (!options.waitUntil) {
-    options.waitUntil = process.env.__STENCIL_BROWSER_WAIT_UNTIL as any;
+  if (!navigationOptions.waitUntil) {
+    navigationOptions.waitUntil = process.env.__STENCIL_BROWSER_WAIT_UNTIL as any;
   }
-  const rsp = await page._e2eGoto(pageUrl, options);
+  const rsp = await page._e2eGoto(pageUrl, navigationOptions);
 
   if (!rsp.ok()) {
     throw new Error(`Testing unable to load content`);
@@ -76,8 +81,8 @@ export async function e2eSetContent(
 
   // This waits for stencil
   try {
-    await page.waitForFunction('window.stencilAppLoaded', {
-      timeout: STENCIL_TIMEOUT
+    await page.waitForFunction("window.stencilAppLoaded", {
+      timeout: STENCIL_TIMEOUT,
     });
   } catch (e) {
     throw new Error(
