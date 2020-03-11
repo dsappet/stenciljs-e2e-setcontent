@@ -6,7 +6,7 @@
   "module": "dist/index.mjs",
   "es2015": "dist/esm/index.mjs",
   "es2017": "dist/esm/index.mjs",
-  "types": "dist/types/index.d.ts",
+  "types": "dist/types/components.d.ts",
   "collection": "dist/collection/collection-manifest.json",
   "collection:main": "dist/collection/index.js",
   "unpkg": "dist/demo/demo.js",
@@ -22,7 +22,12 @@
     "generate": "stencil generate"
   },
   "devDependencies": {
-    "@stencil/core": "^1.8.8"
+    "@stencil/core": "^1.8.8",
+    "@types/jest": "24.0.25",
+    "@types/puppeteer": "1.20.4",
+    "jest": "24.9.0",
+    "jest-cli": "24.9.0",
+    "stenciljs-e2e-setcontent": "^1.0.0"
   },
   "license": "MIT"
 }
